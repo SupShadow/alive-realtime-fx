@@ -10,6 +10,7 @@ export class AudioBus {
   private microphone: MediaStreamAudioSourceNode | null = null;
   private fileSource: AudioBufferSourceNode | null = null;
   private gain: GainNode | null = null;
+  private monitorGain: GainNode | null = null;
   private destination: MediaStreamAudioDestinationNode | null = null;
 
   async ensureContext(): Promise<AudioContext> {
@@ -17,6 +18,8 @@ export class AudioBus {
       this.context = new AudioContext();
       this.gain = this.context.createGain();
       this.gain.gain.value = 1.0;
+      this.monitorGain = this.context.createGain();
+      this.monitorGain.gain.value = 0.3;
       this.destination = this.context.createMediaStreamDestination();
       this.analyser = this.context.createAnalyser();
       this.analyser.fftSize = 1024;
@@ -24,6 +27,8 @@ export class AudioBus {
       this.dataArray = new Float32Array(this.analyser.fftSize);
       this.gain.connect(this.analyser);
       this.analyser.connect(this.destination);
+      this.gain.connect(this.monitorGain);
+      this.monitorGain.connect(this.context.destination);
     }
     return this.context;
   }
@@ -31,12 +36,29 @@ export class AudioBus {
   async connectMicrophone(stream: MediaStream): Promise<void> {
     const ctx = await this.ensureContext();
     this.disconnectFile();
-    if (this.microphone) {
-      this.microphone.disconnect();
-      this.microphone = null;
-    }
+    this.disconnectMicrophone();
     this.microphone = ctx.createMediaStreamSource(stream);
     this.microphone.connect(this.gain!);
+  }
+
+  disconnectMicrophone(): void {
+    if (!this.microphone) {
+      return;
+    }
+    try {
+      this.microphone.disconnect();
+    } catch (e) {
+      // ignore disconnect errors
+    }
+    const stream = this.microphone.mediaStream;
+    stream
+      .getAudioTracks()
+      .forEach((track) => {
+        if (track.readyState !== 'ended') {
+          track.stop();
+        }
+      });
+    this.microphone = null;
   }
 
   async connectFile(file: File): Promise<void> {

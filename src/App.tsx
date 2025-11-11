@@ -89,9 +89,12 @@ const App: React.FC = () => {
       const width = targetCanvas.clientWidth || targetCanvas.width;
       const height = targetCanvas.clientHeight || targetCanvas.height;
       const scale = degrade === 0 ? 1 : degrade === 1 ? 0.75 : 0.5;
-      const renderWidth = Math.max(320, Math.floor(width * scale));
-      const renderHeight = Math.max(180, Math.floor(height * scale));
-      currentGraph.resize(renderWidth, renderHeight);
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const logicalWidth = Math.max(320, Math.floor(width * scale));
+      const logicalHeight = Math.max(180, Math.floor(height * scale));
+      const renderWidth = Math.max(320, Math.floor(width * scale * devicePixelRatio));
+      const renderHeight = Math.max(180, Math.floor(height * scale * devicePixelRatio));
+      currentGraph.resize(renderWidth, renderHeight, logicalWidth, logicalHeight);
       const activeParams: RenderParams = {
         ...paramsRef.current,
         peakBoost: paramsRef.current.peakBoost + peakBoostRef.current
@@ -140,6 +143,7 @@ const App: React.FC = () => {
   }, []);
 
   const stopCurrentStream = () => {
+    audioBusRef.current.disconnectMicrophone();
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
     mediaStreamRef.current = null;
     setCameraActive(false);
@@ -239,16 +243,17 @@ const App: React.FC = () => {
   }, [isRecording, updateSchedulerSafety]);
 
   useEffect(() => {
-    return () => {
-      stopCurrentStream();
-      mediaRecorderRef.current?.stop();
-      renderGraphRef.current?.destroy();
-      if (lastVideoUrlRef.current) {
-        URL.revokeObjectURL(lastVideoUrlRef.current);
-        lastVideoUrlRef.current = null;
-      }
-    };
-  }, []);
+  return () => {
+    stopCurrentStream();
+    mediaRecorderRef.current?.stop();
+    renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
+    if (lastVideoUrlRef.current) {
+      URL.revokeObjectURL(lastVideoUrlRef.current);
+      lastVideoUrlRef.current = null;
+    }
+  };
+}, []);
+
 
   return (
     <div className="app-shell">

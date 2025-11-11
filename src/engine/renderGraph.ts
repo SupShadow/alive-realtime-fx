@@ -84,11 +84,20 @@ export class RenderGraph {
     this.sourceVideo = video;
   }
 
-  resize(width: number, height: number): void {
-    if (width === this.dimensions[0] && height === this.dimensions[1]) return;
+  resize(width: number, height: number, cssWidth = width, cssHeight = height): void {
+    const [currentWidth, currentHeight] = this.dimensions;
+    if (width === currentWidth && height === currentHeight) {
+      if (this.canvas.style.width !== `${cssWidth}px` || this.canvas.style.height !== `${cssHeight}px`) {
+        this.canvas.style.width = `${cssWidth}px`;
+        this.canvas.style.height = `${cssHeight}px`;
+      }
+      return;
+    }
     this.dimensions = [width, height];
     this.canvas.width = width;
     this.canvas.height = height;
+    this.canvas.style.width = `${cssWidth}px`;
+    this.canvas.style.height = `${cssHeight}px`;
     resizeTexture(this.gl, this.sourceTexture, width, height);
     for (const target of [this.ping, this.pong]) {
       if (target.width !== width || target.height !== height) {

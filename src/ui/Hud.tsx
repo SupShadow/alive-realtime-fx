@@ -58,7 +58,9 @@ export const Hud: React.FC<HudProps> = ({
         <div className="control-group">
           <h2>Capture</h2>
           <div className="video-source-controls">
-            <button onClick={onStartCamera}>Enable Camera</button>
+            <button onClick={onStartCamera} disabled={cameraActive}>
+              {cameraActive ? 'Camera Active' : 'Enable Camera'}
+            </button>
             <button onClick={onStopCamera} disabled={!cameraActive}>
               Stop Camera
             </button>

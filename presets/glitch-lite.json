@@ -1,0 +1,17 @@
+{
+  "name": "Glitch-Lite",
+  "params": {
+    "contrastK": 8.5,
+    "blackClamp": 0.05,
+    "gammaOut": 1.1,
+    "grainIntensity": 0.24,
+    "grainSize": 2.0,
+    "vignette": 0.85,
+    "crimsonGate": true,
+    "crimsonAmount": 0.5,
+    "chromaAberration": 0.008,
+    "recordSafe": false,
+    "freezeFrame": false,
+    "peakBoost": 0.15
+  }
+}

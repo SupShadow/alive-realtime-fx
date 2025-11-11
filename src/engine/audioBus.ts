@@ -31,12 +31,29 @@ export class AudioBus {
   async connectMicrophone(stream: MediaStream): Promise<void> {
     const ctx = await this.ensureContext();
     this.disconnectFile();
-    if (this.microphone) {
-      this.microphone.disconnect();
-      this.microphone = null;
-    }
+    this.disconnectMicrophone();
     this.microphone = ctx.createMediaStreamSource(stream);
     this.microphone.connect(this.gain!);
+  }
+
+  disconnectMicrophone(): void {
+    if (!this.microphone) {
+      return;
+    }
+    try {
+      this.microphone.disconnect();
+    } catch (e) {
+      // ignore disconnect errors
+    }
+    const stream = this.microphone.mediaStream;
+    stream
+      .getAudioTracks()
+      .forEach((track) => {
+        if (track.readyState !== 'ended') {
+          track.stop();
+        }
+      });
+    this.microphone = null;
   }
 
   async connectFile(file: File): Promise<void> {

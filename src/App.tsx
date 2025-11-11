@@ -110,6 +110,7 @@ const App: React.FC = () => {
 
     return () => {
       scheduler.stop();
+      renderGraphRef.current?.destroy();
       renderGraphRef.current = null;
     };
   }, [updateSchedulerSafety]);
@@ -241,6 +242,7 @@ const App: React.FC = () => {
     return () => {
       stopCurrentStream();
       mediaRecorderRef.current?.stop();
+      renderGraphRef.current?.destroy();
       if (lastVideoUrlRef.current) {
         URL.revokeObjectURL(lastVideoUrlRef.current);
         lastVideoUrlRef.current = null;

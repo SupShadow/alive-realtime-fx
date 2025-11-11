@@ -1,0 +1,2 @@
+# Treat data URL resource stubs as text for clean diffs
+public/*.dataurl text eol=lf

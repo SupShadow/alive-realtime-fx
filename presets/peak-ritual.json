@@ -1,0 +1,17 @@
+{
+  "name": "Peak Ritual",
+  "params": {
+    "contrastK": 9.0,
+    "blackClamp": 0.06,
+    "gammaOut": 1.12,
+    "grainIntensity": 0.32,
+    "grainSize": 2.8,
+    "vignette": 0.95,
+    "crimsonGate": true,
+    "crimsonAmount": 0.7,
+    "chromaAberration": 0.012,
+    "recordSafe": false,
+    "freezeFrame": false,
+    "peakBoost": 0.3
+  }
+}

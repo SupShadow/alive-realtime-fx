@@ -1,0 +1,3 @@
+# Base64 encoded 2x2 blue-noise style dither for procedural fallback
+# Developers can decode and drop into WebGL textures at runtime when binary assets are undesirable.
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR42mNkYGD4z0AEYBxVSFUBAGUzA9VJZZQcAAAAAElFTkSuQmCC

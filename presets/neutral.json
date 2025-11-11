@@ -1,0 +1,17 @@
+{
+  "name": "Neutral",
+  "params": {
+    "contrastK": 8,
+    "blackClamp": 0.03,
+    "gammaOut": 1.05,
+    "grainIntensity": 0.18,
+    "grainSize": 1.3,
+    "vignette": 0.65,
+    "crimsonGate": true,
+    "crimsonAmount": 0.35,
+    "chromaAberration": 0.005,
+    "recordSafe": false,
+    "freezeFrame": false,
+    "peakBoost": 0
+  }
+}

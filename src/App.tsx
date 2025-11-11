@@ -113,6 +113,7 @@ const App: React.FC = () => {
 
     return () => {
       scheduler.stop();
+      renderGraphRef.current?.destroy();
       renderGraphRef.current = null;
     };
   }, [updateSchedulerSafety]);
@@ -242,16 +243,17 @@ const App: React.FC = () => {
   }, [isRecording, updateSchedulerSafety]);
 
   useEffect(() => {
-    return () => {
-      stopCurrentStream();
-      mediaRecorderRef.current?.stop();
-      audioBusRef.current.disconnectMicrophone();
-      if (lastVideoUrlRef.current) {
-        URL.revokeObjectURL(lastVideoUrlRef.current);
-        lastVideoUrlRef.current = null;
-      }
-    };
-  }, []);
+  return () => {
+    stopCurrentStream();
+    mediaRecorderRef.current?.stop();
+    renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
+    if (lastVideoUrlRef.current) {
+      URL.revokeObjectURL(lastVideoUrlRef.current);
+      lastVideoUrlRef.current = null;
+    }
+  };
+}, []);
+
 
   return (
     <div className="app-shell">

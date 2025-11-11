@@ -141,6 +141,26 @@ export class RenderGraph {
     gl.bindVertexArray(null);
   }
 
+  destroy(): void {
+    const gl = this.gl;
+    this.pool.destroy();
+
+    for (const pass of this.passes) {
+      gl.deleteProgram(pass.program);
+    }
+
+    for (const target of [this.ping, this.pong]) {
+      if (target.framebuffer) {
+        gl.deleteFramebuffer(target.framebuffer);
+      }
+      gl.deleteTexture(target.texture);
+    }
+
+    gl.deleteTexture(this.sourceTexture);
+    gl.deleteVertexArray(this.quad.vao);
+    gl.deleteBuffer(this.quad.buffer);
+  }
+
   private bindInputTexture(gl: WebGL2RenderingContext, program: WebGLProgram, texture: WebGLTexture): void {
     gl.useProgram(program);
     const loc = gl.getUniformLocation(program, 'u_input');

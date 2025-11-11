@@ -61,6 +61,9 @@ canvas {
   border-radius: 12px;
   padding: 16px;
   pointer-events: auto;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .hud-panel h2 {
@@ -190,4 +193,18 @@ footer {
   background: rgba(0, 0, 0, 0.85);
   text-align: center;
   letter-spacing: 0.06em;
+}
+
+@media (max-height: 720px) {
+  .hud {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 8px;
+  }
+
+  .hud-panel {
+    gap: 8px;
+    padding: 12px;
+  }
 }

@@ -139,6 +139,7 @@ const App: React.FC = () => {
   }, []);
 
   const stopCurrentStream = () => {
+    audioBusRef.current.disconnectMicrophone();
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
     mediaStreamRef.current = null;
     setCameraActive(false);
@@ -241,6 +242,7 @@ const App: React.FC = () => {
     return () => {
       stopCurrentStream();
       mediaRecorderRef.current?.stop();
+      audioBusRef.current.disconnectMicrophone();
       if (lastVideoUrlRef.current) {
         URL.revokeObjectURL(lastVideoUrlRef.current);
         lastVideoUrlRef.current = null;

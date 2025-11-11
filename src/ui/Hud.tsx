@@ -146,7 +146,17 @@ export const Hud: React.FC<HudProps> = ({
           <h2>Record</h2>
           <div className="transport-bar">
             <button onClick={onToggleRecord}>{isRecording ? 'Stop' : 'Record'}</button>
-            <button onClick={() => onSafeModeChange(!safeMode)}>{safeMode ? 'Safe Mode On' : 'Safe Mode Off'}</button>
+            <button
+              onClick={() => onSafeModeChange(!safeMode)}
+              aria-pressed={safeMode}
+              aria-label={
+                safeMode
+                  ? 'Disable Safe Mode to restore full effect intensity'
+                  : 'Enable Safe Mode to reduce intense visual effects'
+              }
+            >
+              {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
+            </button>
             <label>
               <input
                 type="checkbox"

@@ -119,80 +119,25 @@ canvas {
   background: rgba(255, 255, 255, 0.18);
 }
 
+/* Toggle-Buttons: aktiver/gedrückter Zustand (A11y via aria-pressed) */
+button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #f6f6f6;
+}
+
+/* Disabled-Zustand in Panels */
 .hud-panel button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   background: rgba(255, 255, 255, 0.08);
 }
 
-.safe-guides {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.safe-guides svg {
-  width: 100%;
-  height: 100%;
-}
-
-.preset-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.preset-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+/* Sicherheit: falls disabled + pressed gleichzeitig gesetzt ist, soll disabled gewinnen */
+.hud-panel button:disabled[aria-pressed="true"] {
   background: rgba(255, 255, 255, 0.08);
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.status-row {
-  display: flex;
-  gap: 16px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.8;
-}
-
-.video-source-controls {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.file-input {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.file-input input {
-  display: none;
-}
-
-footer {
-  font-size: 11px;
-  padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.85);
-  text-align: center;
-  letter-spacing: 0.06em;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f6f6f6;
 }
 
 @media (max-height: 720px) {

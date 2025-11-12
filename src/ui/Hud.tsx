@@ -106,7 +106,7 @@ export const Hud: React.FC<HudProps> = ({
         </div>
         <div className="control-group">
           <h2>Crimson</h2>
-          <label>Gate Enabled</label>
+          <label>Gate Enabled (G)</label>
           <input
             type="checkbox"
             checked={params.crimsonGate}
@@ -145,7 +145,7 @@ export const Hud: React.FC<HudProps> = ({
         <div className="control-group">
           <h2>Record</h2>
           <div className="transport-bar">
-            <button onClick={onToggleRecord}>{isRecording ? 'Stop' : 'Record'}</button>
+            <button onClick={onToggleRecord}>{isRecording ? 'Stop (R)' : 'Record (R)'}</button>
             <button
               onClick={() => onSafeModeChange(!safeMode)}
               aria-pressed={safeMode}

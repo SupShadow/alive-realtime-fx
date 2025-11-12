@@ -127,21 +127,6 @@ const App: React.FC = () => {
     updateSchedulerSafety();
   }, [isRecording, updateSchedulerSafety]);
 
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.repeat) return;
-      if (event.key === 'r' || event.key === 'R') {
-        setParams((prev) => ({ ...prev, crimsonGate: !prev.crimsonGate }));
-      } else if (event.key === 'f' || event.key === 'F') {
-        setParams((prev) => ({ ...prev, freezeFrame: !prev.freezeFrame }));
-      } else if (event.key === 'p' || event.key === 'P') {
-        peakBoostRef.current = 0.6;
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
   const stopCurrentStream = () => {
     audioBusRef.current.disconnectMicrophone();
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -243,16 +228,46 @@ const App: React.FC = () => {
   }, [isRecording, updateSchedulerSafety]);
 
   useEffect(() => {
-  return () => {
-    stopCurrentStream();
-    mediaRecorderRef.current?.stop();
-    renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
-    if (lastVideoUrlRef.current) {
-      URL.revokeObjectURL(lastVideoUrlRef.current);
-      lastVideoUrlRef.current = null;
-    }
-  };
-}, []);
+    const isEditing = (element: Element | null) => {
+      if (!element) return false;
+      const tagName = element.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
+        return true;
+      }
+      return (element as HTMLElement).isContentEditable;
+    };
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.repeat) return;
+      const activeElement = (document.activeElement as Element | null) ?? null;
+      if (isEditing(activeElement)) return;
+
+      if (event.key === 'r' || event.key === 'R') {
+        event.preventDefault();
+        handleToggleRecord();
+      } else if (event.key === 'g' || event.key === 'G') {
+        setParams((prev) => ({ ...prev, crimsonGate: !prev.crimsonGate }));
+      } else if (event.key === 'f' || event.key === 'F') {
+        setParams((prev) => ({ ...prev, freezeFrame: !prev.freezeFrame }));
+      } else if (event.key === 'p' || event.key === 'P') {
+        peakBoostRef.current = 0.6;
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [handleToggleRecord]);
+
+  useEffect(() => {
+    return () => {
+      stopCurrentStream();
+      mediaRecorderRef.current?.stop();
+      renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
+      if (lastVideoUrlRef.current) {
+        URL.revokeObjectURL(lastVideoUrlRef.current);
+        lastVideoUrlRef.current = null;
+      }
+    };
+  }, []);
 
 
   return (
@@ -280,7 +295,8 @@ const App: React.FC = () => {
         />
       </div>
       <footer>
-        Hotkeys: <strong>R</strong> crimson gate &nbsp;|&nbsp; <strong>F</strong> freeze frame &nbsp;|&nbsp; <strong>P</strong> peak punch-in
+        Hotkeys: <strong>R</strong> record &nbsp;|&nbsp; <strong>G</strong> crimson gate &nbsp;|&nbsp; <strong>F</strong> freeze frame
+        &nbsp;|&nbsp; <strong>P</strong> peak punch-in
       </footer>
     </div>
   );

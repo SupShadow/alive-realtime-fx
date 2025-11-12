@@ -462,11 +462,7 @@ const Hud: React.FC<HudProps> = ({
             </div>
           </div>
 
-          <p>
-            Allow camera + microphone in browser or iframe using{' '}
-            <code>allow="camera; microphone; autoplay"</code>. When the recorder is
-            active, temporal jitter and glitches are softened automatically.
-          </p>
+          {/* Developer note removed intentionally */}
         </div>
       </div>
     </div>

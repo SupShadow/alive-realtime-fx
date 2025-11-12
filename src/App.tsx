@@ -6,6 +6,9 @@ import { RenderGraph, RenderParams } from './engine/renderGraph';
 import { FrameScheduler } from './engine/scheduler';
 import { AudioBus } from './engine/audioBus';
 
+type MediaPermissionState = PermissionState | 'unknown';
+type MediaPermissionMap = Record<'camera' | 'microphone', MediaPermissionState>;
+
 const defaultParams: RenderParams = {
   contrastK: 8.0,
   blackClamp: 0.03,
@@ -46,6 +49,8 @@ const App: React.FC = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [envelope, setEnvelope] = useState({ peak: 0, rms: 0 });
   const [degradeLevel, setDegradeLevel] = useState(0);
+  const [mediaPermissions, setMediaPermissions] = useState<MediaPermissionMap>({ camera: 'unknown', microphone: 'unknown' });
+  const [permissionBannerDismissed, setPermissionBannerDismissed] = useState(false);
 
   const startTimer = useCallback(() => {
     if (timerIntervalRef.current !== null) return;
@@ -70,6 +75,62 @@ const App: React.FC = () => {
   useEffect(() => {
     paramsRef.current = params;
   }, [params]);
+
+  useEffect(() => {
+    if (!('permissions' in navigator) || !navigator.permissions) {
+      return;
+    }
+
+    const permissionApi = navigator.permissions;
+    if (!permissionApi) {
+      return;
+    }
+
+    let isActive = true;
+    const disposers: Array<() => void> = [];
+
+    (['camera', 'microphone'] as const).forEach((name) => {
+      permissionApi
+        .query({ name } as PermissionDescriptor)
+        .then((status) => {
+          if (!isActive) return;
+
+          const applyState = (state: PermissionState) => {
+            setMediaPermissions((prev) => ({ ...prev, [name]: state }));
+          };
+
+          applyState(status.state);
+
+          const handleChange = () => {
+            applyState(status.state);
+          };
+
+          status.addEventListener('change', handleChange);
+          disposers.push(() => status.removeEventListener('change', handleChange));
+        })
+        .catch(() => {
+          if (!isActive) return;
+          setMediaPermissions((prev) => ({ ...prev, [name]: 'unknown' }));
+        });
+    });
+
+    return () => {
+      isActive = false;
+      disposers.forEach((dispose) => dispose());
+    };
+  }, []);
+
+  const deniedRef = useRef(false);
+
+  const hasDeniedMediaPermission =
+    mediaPermissions.camera === 'denied' || mediaPermissions.microphone === 'denied';
+
+  useEffect(() => {
+    if (hasDeniedMediaPermission && !deniedRef.current) {
+      setPermissionBannerDismissed(false);
+    }
+    deniedRef.current = hasDeniedMediaPermission;
+  }, [hasDeniedMediaPermission]);
 
   useEffect(() => {
     const video = document.createElement('video');
@@ -185,8 +246,12 @@ const App: React.FC = () => {
       setCameraActive(true);
       await audioBusRef.current.connectMicrophone(stream);
       renderGraphRef.current?.setSource(video);
+      setMediaPermissions((prev) => ({ ...prev, camera: 'granted', microphone: 'granted' }));
     } catch (error) {
       console.error('Camera start failed', error);
+      if (error instanceof DOMException && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
+        setMediaPermissions((prev) => ({ ...prev, camera: 'denied', microphone: 'denied' }));
+      }
     }
   }, []);
 
@@ -222,6 +287,19 @@ const App: React.FC = () => {
   const handleParamChange = useCallback((changes: Partial<RenderParams>) => {
     setParams((prev) => ({ ...prev, ...changes }));
   }, []);
+
+  const blockedTargets = (['camera', 'microphone'] as const).filter(
+    (name) => mediaPermissions[name] === 'denied'
+  );
+
+  const showPermissionBanner = hasDeniedMediaPermission && !permissionBannerDismissed;
+
+  const blockedDescription =
+    blockedTargets.length === 2
+      ? 'Camera and microphone access are blocked.'
+      : blockedTargets.length === 1
+      ? `${blockedTargets[0] === 'camera' ? 'Camera' : 'Microphone'} access is blocked.`
+      : '';
 
   const handlePreset = useCallback((preset: Partial<RenderParams>) => {
     setParams((prev) => ({ ...prev, ...preset }));
@@ -383,6 +461,26 @@ const App: React.FC = () => {
       <div className="canvas-wrapper">
         <canvas ref={canvasRef} width={1280} height={720} />
         <SafeGuides mode={safeGuide} />
+        {showPermissionBanner && (
+          <div className="permission-banner" role="alert" aria-live="assertive">
+            <div className="permission-banner__message">
+              <strong>Permissions blocked</strong>
+              <span>{blockedDescription || 'Camera or microphone access is unavailable.'}</span>
+              <span>
+                Update browser permissions or ensure embedded contexts include{' '}
+                <code>allow="camera; microphone; autoplay"</code>.
+              </span>
+            </div>
+            <button
+              type="button"
+              className="permission-banner__dismiss"
+              onClick={() => setPermissionBannerDismissed(true)}
+              aria-label="Dismiss camera and microphone permission warning"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         <Hud
           params={params}
           onParamChange={handleParamChange}

@@ -33,14 +33,38 @@ const App: React.FC = () => {
   const paramsRef = useRef<RenderParams>(defaultParams);
   const peakBoostRef = useRef(0);
   const recordingRef = useRef(false);
+  const recordingStartRef = useRef<number | null>(null);
+  const accumulatedTimeRef = useRef(0);
+  const timerIntervalRef = useRef<number | null>(null);
 
   const [params, setParams] = useState<RenderParams>(defaultParams);
   const [safeMode, setSafeMode] = useState(false);
   const [safeGuide, setSafeGuide] = useState<SafeGuideMode>('16:9');
-  const [isRecording, setIsRecording] = useState(false);
+  const [recordState, setRecordState] = useState<'idle' | 'recording' | 'paused'>('idle');
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
   const [envelope, setEnvelope] = useState({ peak: 0, rms: 0 });
   const [degradeLevel, setDegradeLevel] = useState(0);
+
+  const startTimer = useCallback(() => {
+    if (timerIntervalRef.current !== null) return;
+    timerIntervalRef.current = window.setInterval(() => {
+      if (recordingStartRef.current !== null) {
+        const now = performance.now();
+        const total = accumulatedTimeRef.current + (now - recordingStartRef.current);
+        setElapsedMs(total);
+      } else {
+        setElapsedMs(accumulatedTimeRef.current);
+      }
+    }, 1000);
+  }, []);
+
+  const stopTimer = useCallback(() => {
+    if (timerIntervalRef.current !== null) {
+      window.clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     paramsRef.current = params;
@@ -99,7 +123,8 @@ const App: React.FC = () => {
         ...paramsRef.current,
         peakBoost: paramsRef.current.peakBoost + peakBoostRef.current
       };
-      if (isRecording || activeParams.recordSafe) {
+      const isRecordingActive = recordingRef.current;
+      if (isRecordingActive || activeParams.recordSafe) {
         activeParams.freezeFrame = false;
       }
       currentGraph.render(activeParams, {
@@ -123,9 +148,10 @@ const App: React.FC = () => {
   }, [safeMode, params.recordSafe, updateSchedulerSafety]);
 
   useEffect(() => {
-    recordingRef.current = isRecording;
+    const active = recordState !== 'idle';
+    recordingRef.current = active;
     updateSchedulerSafety();
-  }, [isRecording, updateSchedulerSafety]);
+  }, [recordState, updateSchedulerSafety]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -202,8 +228,8 @@ const App: React.FC = () => {
     setParams((prev) => ({ ...prev, ...preset }));
   }, []);
 
-  const handleToggleRecord = useCallback(() => {
-    if (isRecording) {
+  const handleRecordPrimaryAction = useCallback(() => {
+    if (recordState !== 'idle') {
       mediaRecorderRef.current?.stop();
       return;
     }
@@ -223,7 +249,28 @@ const App: React.FC = () => {
         recordedChunksRef.current.push(event.data);
       }
     };
+    recorder.onpause = () => {
+      if (recordingStartRef.current !== null) {
+        accumulatedTimeRef.current += performance.now() - recordingStartRef.current;
+        recordingStartRef.current = null;
+      }
+      stopTimer();
+      setElapsedMs(accumulatedTimeRef.current);
+      setRecordState('paused');
+    };
+    recorder.onresume = () => {
+      recordingStartRef.current = performance.now();
+      startTimer();
+      setRecordState('recording');
+    };
     recorder.onstop = () => {
+      if (recordingStartRef.current !== null) {
+        accumulatedTimeRef.current += performance.now() - recordingStartRef.current;
+      }
+      stopTimer();
+      recordingStartRef.current = null;
+      accumulatedTimeRef.current = 0;
+      setElapsedMs(0);
       const blob = new Blob(recordedChunksRef.current, { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -232,27 +279,42 @@ const App: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       recordingRef.current = false;
-      setIsRecording(false);
+      setRecordState('idle');
       updateSchedulerSafety();
     };
     recorder.start();
     mediaRecorderRef.current = recorder;
     recordingRef.current = true;
-    setIsRecording(true);
+    accumulatedTimeRef.current = 0;
+    recordingStartRef.current = performance.now();
+    setElapsedMs(0);
+    startTimer();
+    setRecordState('recording');
     updateSchedulerSafety();
-  }, [isRecording, updateSchedulerSafety]);
+  }, [recordState, startTimer, stopTimer, updateSchedulerSafety]);
+
+  const handleRecordPauseToggle = useCallback(() => {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder) return;
+    if (recordState === 'recording') {
+      recorder.pause();
+    } else if (recordState === 'paused') {
+      recorder.resume();
+    }
+  }, [recordState]);
 
   useEffect(() => {
-  return () => {
-    stopCurrentStream();
-    mediaRecorderRef.current?.stop();
-    renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
-    if (lastVideoUrlRef.current) {
-      URL.revokeObjectURL(lastVideoUrlRef.current);
-      lastVideoUrlRef.current = null;
-    }
-  };
-}, []);
+    return () => {
+      stopCurrentStream();
+      mediaRecorderRef.current?.stop();
+      renderGraphRef.current?.destroy(); // GPU-Ressourcen sauber freigeben
+      stopTimer();
+      if (lastVideoUrlRef.current) {
+        URL.revokeObjectURL(lastVideoUrlRef.current);
+        lastVideoUrlRef.current = null;
+      }
+    };
+  }, [stopTimer]);
 
 
   return (
@@ -268,8 +330,10 @@ const App: React.FC = () => {
           onStopCamera={handleCameraStop}
           onVideoFile={handleVideoFile}
           onAudioFile={handleAudioFile}
-          onToggleRecord={handleToggleRecord}
-          isRecording={isRecording}
+          onRecordPrimaryAction={handleRecordPrimaryAction}
+          onRecordPauseToggle={handleRecordPauseToggle}
+          recordState={recordState}
+          elapsedTimeMs={elapsedMs}
           cameraActive={cameraActive}
           safeMode={safeMode}
           onSafeModeChange={setSafeMode}

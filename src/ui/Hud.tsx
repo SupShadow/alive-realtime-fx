@@ -4,6 +4,7 @@ import { RenderParams } from '../engine/renderGraph';
 import PresetPanel from './PresetPanel';
 import { SafeGuideMode } from './SafeGuides';
 import InfoTooltip from './InfoTooltip';
+import ToggleSwitch from './ToggleSwitch';
 
 type RecordState = 'idle' | 'recording' | 'paused';
 
@@ -125,7 +126,7 @@ export const Hud: React.FC<HudProps> = ({
 
         {/* Tone & Contrast */}
         <div className="control-group">
-          <h2>Tone &amp; Contrast</h2>
+          <h2>Tone & Contrast</h2>
 
           <div className="control-stack">
             <div className="control-label-row">
@@ -279,44 +280,21 @@ export const Hud: React.FC<HudProps> = ({
 
         {/* Color Bloom & Distortion */}
         <div className="control-group">
-          <h2>Color Bloom &amp; Distortion</h2>
+          <h2>Color Bloom & Distortion</h2>
+
+          <ToggleSwitch
+            id="color-bloom-gate"
+            label="Color Bloom Gate"
+            checked={params.crimsonGate}
+            onChange={(checked) => onParamChange({ crimsonGate: checked })}
+            description="Enables responsive bloom pulses that react to peaks in the signal."
+          />
 
           <div className="control-stack">
-            <div className="control-label-row">
-              <label htmlFor="color-bloom-gate">Color Bloom Gate</label>
-              <InfoTooltip
-                content="Enables responsive bloom pulses that react to peaks in the signal."
-                ariaLabel="Learn about color bloom gate"
-              />
-            </div>
-            <p className="control-helper">
-              Toggle to allow bloom flashes during high-energy moments.
-            </p>
+            <label>
+              Bloom Intensity ({params.crimsonAmount.toFixed(2)})
+            </label>
             <input
-              id="color-bloom-gate"
-              type="checkbox"
-              checked={params.crimsonGate}
-              onChange={(event) =>
-                onParamChange({ crimsonGate: event.target.checked })
-              }
-            />
-          </div>
-
-          <div className="control-stack">
-            <div className="control-label-row">
-              <label htmlFor="color-bloom-amount">
-                Bloom Intensity ({params.crimsonAmount.toFixed(2)})
-              </label>
-              <InfoTooltip
-                content="Sets how strong the reactive color bloom appears when the gate is active."
-                ariaLabel="Learn about bloom intensity"
-              />
-            </div>
-            <p className="control-helper">
-              Higher values push vibrant glow into highlights.
-            </p>
-            <input
-              id="color-bloom-amount"
               type="range"
               min="0"
               max="1.2"
@@ -327,20 +305,10 @@ export const Hud: React.FC<HudProps> = ({
           </div>
 
           <div className="control-stack">
-            <div className="control-label-row">
-              <label htmlFor="edge-split">
-                Edge Color Split ({params.chromaAberration.toFixed(3)})
-              </label>
-              <InfoTooltip
-                content="Offsets color channels at the frame edge for a stylised chromatic glitch."
-                ariaLabel="Learn about edge color split"
-              />
-            </div>
-            <p className="control-helper">
-              Use lightly to keep subjects legible while adding motion energy.
-            </p>
+            <label>
+              Edge Color Split ({params.chromaAberration.toFixed(3)})
+            </label>
             <input
-              id="edge-split"
               type="range"
               min="0"
               max="0.02"
@@ -371,7 +339,6 @@ export const Hud: React.FC<HudProps> = ({
         {/* Record */}
         <div className="control-group">
           <h2>Record</h2>
-
           <div className="record-panel">
             <div className="record-primary">
               <button
@@ -382,12 +349,7 @@ export const Hud: React.FC<HudProps> = ({
                 {recordState === 'idle' ? 'Start Recording' : 'Stop Recording'}
               </button>
 
-              <div
-                className="record-status"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-              >
+              <div className="record-status" role="status" aria-live="polite">
                 <span
                   className={`record-indicator ${
                     recordState !== 'idle' ? 'active' : ''
@@ -412,72 +374,42 @@ export const Hud: React.FC<HudProps> = ({
                 onClick={onRecordPauseToggle}
                 disabled={recordState === 'idle'}
                 aria-pressed={recordState === 'paused'}
-                title={recordState === 'paused' ? 'Resume recording' : 'Pause recording'}
               >
                 {recordState === 'paused' ? 'Resume' : 'Pause'}
               </button>
             </div>
 
             <div className="record-secondary">
-              <button
-                onClick={() => onSafeModeChange(!safeMode)}
-                aria-pressed={safeMode}
-                aria-label={
-                  safeMode
-                    ? 'Disable Safe Mode to restore full effect intensity'
-                    : 'Enable Safe Mode to reduce intense visual effects'
-                }
-                title={
-                  safeMode
-                    ? 'Disable Safe Mode to restore full effect intensity'
-                    : 'Enable Safe Mode to reduce intense visual effects'
-                }
-              >
-                {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
-              </button>
+              <ToggleSwitch
+                id="safe-mode"
+                label="Safe Mode"
+                checked={safeMode}
+                onChange={onSafeModeChange}
+                description="Reduces intense visual effects for viewer comfort."
+              />
 
-              <div className="control-stack">
-                <div className="control-label-row">
-                  <label htmlFor="record-safe">Record Safe Override</label>
-                  <InfoTooltip
-                    content="Forces a conservative output profile when capturing, even if live mode is more intense."
-                    ariaLabel="Learn about record safe override"
-                  />
-                </div>
-                <input
-                  id="record-safe"
-                  type="checkbox"
-                  checked={params.recordSafe}
-                  onChange={(event) =>
-                    onParamChange({ recordSafe: event.target.checked })
-                  }
-                />
-              </div>
+              <ToggleSwitch
+                id="record-safe"
+                label="Record Safe Override"
+                checked={params.recordSafe}
+                onChange={(checked) => onParamChange({ recordSafe: checked })}
+                description="Allow intense effects while recording."
+              />
 
-              <div className="control-stack">
-                <div className="control-label-row">
-                  <label htmlFor="freeze-frame">Freeze Frame (F)</label>
-                  <InfoTooltip
-                    content="Locks the current frame for still captures while keeping audio flowing."
-                    ariaLabel="Learn about freeze frame"
-                  />
-                </div>
-                <input
-                  id="freeze-frame"
-                  type="checkbox"
-                  checked={params.freezeFrame}
-                  onChange={(event) =>
-                    onParamChange({ freezeFrame: event.target.checked })
-                  }
-                />
-              </div>
+              <ToggleSwitch
+                id="freeze-frame"
+                label="Freeze Frame (F)"
+                checked={params.freezeFrame}
+                onChange={(checked) => onParamChange({ freezeFrame: checked })}
+                description="Hold the current frame during capture."
+              />
             </div>
           </div>
 
           <p>
             Allow camera + microphone in browser or iframe using{' '}
-            <code>allow="camera; microphone; autoplay"</code>. When the recorder is
-            active, temporal jitter and glitches are softened automatically.
+            <code>allow="camera; microphone; autoplay"</code>. When the recorder
+            is active, temporal jitter and glitches are softened automatically.
           </p>
         </div>
       </div>

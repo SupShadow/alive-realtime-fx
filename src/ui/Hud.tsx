@@ -2,6 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { RenderParams } from '../engine/renderGraph';
 import PresetPanel from './PresetPanel';
 import { SafeGuideMode } from './SafeGuides';
+import LevelMeter from './LevelMeter';
 
 interface HudProps {
   params: RenderParams;
@@ -74,9 +75,25 @@ export const Hud: React.FC<HudProps> = ({
             </div>
           </div>
           <div className="status-row">
-            <span className="badge">Peak {formatPercent(envelope.peak)}</span>
-            <span className="badge">RMS {formatPercent(envelope.rms)}</span>
-            <span className="badge">Degrade L{degradeStep}</span>
+            <LevelMeter
+              label="Peak"
+              peak={envelope.peak}
+              rms={envelope.rms}
+              secondaryLabel={formatPercent(envelope.peak)}
+            />
+            <LevelMeter
+              label="RMS"
+              peak={envelope.rms}
+              rms={envelope.rms}
+              secondaryLabel={formatPercent(envelope.rms)}
+            />
+            <LevelMeter
+              label="Degrade"
+              peak={Math.min(1, degradeStep / 2)}
+              rms={Math.min(1, degradeStep / 2)}
+              secondaryLabel={`L${degradeStep}`}
+              bars={3}
+            />
           </div>
         </div>
         <div className="control-group">

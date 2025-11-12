@@ -1,3 +1,5 @@
+/* src/ui/styles.css — konfliktfrei gemergt (Stand 2025-11-12, Europe/Berlin) */
+
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #f2f2f2;
@@ -15,6 +17,8 @@ body, html, #root {
 body {
   overflow: hidden;
 }
+
+/* ───────────────────────────────── Layout ───────────────────────────────── */
 
 .app-shell {
   position: relative;
@@ -39,6 +43,8 @@ canvas {
   height: 100%;
   max-height: 100%;
 }
+
+/* ─────────────────────────────── HUD & Banner ───────────────────────────── */
 
 .hud {
   position: absolute;
@@ -125,6 +131,8 @@ canvas {
   }
 }
 
+/* ─────────────────────────────── HUD Panel ──────────────────────────────── */
+
 .hud-panel {
   display: flex;
   flex-wrap: wrap;
@@ -148,6 +156,8 @@ canvas {
   color: #f6f6f6;
 }
 
+/* ─────────────────────────────── Controls ──────────────────────────────── */
+
 .control-group {
   display: flex;
   flex-direction: column;
@@ -165,12 +175,113 @@ canvas {
   width: 100%;
 }
 
-/* --- Record Panel (merged) --- */
+.control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.control-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.control-helper {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(246, 246, 246, 0.75);
+}
+
+/* ───────────────────────────── File / Source ───────────────────────────── */
+
+.video-source-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.file-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-input input[type="file"] {
+  display: none;
+}
+
+/* Style the label like a button */
+.file-input label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  color: #f6f6f6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.file-input label:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────── Buttons ──────────────────────────────── */
+
+.hud-panel button,
+.record-secondary button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  color: #f6f6f6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.hud-panel button:hover,
+.record-secondary button:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.hud-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────── Presets/Guides ────────────────────────── */
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ─────────────────────────────── Record Panel ─────────────────────────── */
+
 .record-panel {
   display: flex;
-  flex-direction: column; /* main */
+  flex-direction: column;
   gap: 12px;
-  /* aus codex: sinnvolle Defaults beibehalten */
   align-items: center;
   justify-content: flex-start;
 }
@@ -229,6 +340,79 @@ canvas {
   transform: scale(0.97);
 }
 
+/* ──────────────── MERGE: Beides behalten (.status-row / .level-meter + .record-status) ──────────────── */
+
+/* From branch: codex/create-and-integrate-level-meter-component */
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.level-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 96px;
+}
+
+.level-meter__bars {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 32px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.18));
+  transition: background 180ms ease;
+}
+
+.level-meter__bar {
+  flex: 1;
+  min-width: 3px;
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.2;
+  transition: opacity 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.level-meter__bar.is-rms {
+  background: linear-gradient(180deg, rgba(48, 196, 255, 0.85), rgba(26, 118, 255, 0.65));
+  opacity: 0.85;
+  box-shadow: 0 0 6px rgba(64, 164, 255, 0.45);
+}
+
+.level-meter__bar.is-peak {
+  background: linear-gradient(180deg, rgba(255, 136, 136, 0.95), rgba(255, 70, 70, 0.7));
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(255, 90, 90, 0.6);
+}
+
+.level-meter__legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.8);
+}
+
+.level-meter__label {
+  font-weight: 600;
+}
+
+.level-meter__value {
+  color: rgba(246, 246, 246, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+/* From branch: main */
 .record-status {
   display: flex;
   align-items: center;
@@ -239,6 +423,7 @@ canvas {
   text-transform: uppercase;
 }
 
+/* Shared (unterhalb des Konfliktblocks bereits vorhanden) */
 .record-indicator {
   width: 12px;
   height: 12px;
@@ -292,6 +477,59 @@ canvas {
   cursor: not-allowed;
 }
 
-.record-secondary button,
-.hud-panel button,
-.file-input label {
+/* ─────────────────────────────── Info Tooltip ───────────────────────────── */
+
+.info-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  color: #0a0a0a;
+  background: #f6f6f6;
+  cursor: help;
+}
+
+.info-tooltip__bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 280px;
+  padding: 8px 10px;
+  background: rgba(8, 8, 8, 0.95);
+  color: #f6f6f6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  display: none;
+  z-index: 10;
+}
+
+.info-tooltip:hover .info-tooltip__bubble,
+.info-tooltip:focus-within .info-tooltip__bubble {
+  display: block;
+}
+
+/* ─────────────────────────────── Responsive ────────────────────────────── */
+
+@media (max-height: 720px) {
+  .hud {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 880px) {
+  .record-primary {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

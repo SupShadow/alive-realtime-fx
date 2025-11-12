@@ -174,10 +174,6 @@ export const Hud: React.FC<HudProps> = ({
               Freeze Frame (F)
             </label>
           </div>
-          <p>
-            Allow camera + microphone in browser or iframe using <code>allow="camera; microphone; autoplay"</code>. When the recorder is active, temporal
-            jitter and glitches are softened automatically.
-          </p>
         </div>
       </div>
     </div>

@@ -4,7 +4,6 @@ import { RenderParams } from '../engine/renderGraph';
 import PresetPanel from './PresetPanel';
 import { SafeGuideMode } from './SafeGuides';
 import InfoTooltip from './InfoTooltip';
-import ToggleSwitch from './ToggleSwitch';
 
 type RecordState = 'idle' | 'recording' | 'paused';
 
@@ -12,19 +11,25 @@ interface HudProps {
   params: RenderParams;
   onParamChange: (changes: Partial<RenderParams>) => void;
   onPreset: (params: Partial<RenderParams>) => void;
+
   onStartCamera: () => void;
   onStopCamera: () => void;
   onVideoFile: (file: File) => void;
   onAudioFile: (file: File) => void;
-  onRecordPrimaryAction: () => void;
-  onRecordPauseToggle: () => void;
+
+  onRecordPrimaryAction: () => void;   // Start/Stop (Hotkey: R)
+  onRecordPauseToggle: () => void;      // Pause/Resume
+
   recordState: RecordState;
   elapsedTimeMs: number;
   cameraActive: boolean;
+
   safeMode: boolean;
   onSafeModeChange: (value: boolean) => void;
+
   safeGuide: SafeGuideMode;
   onSafeGuideChange: (mode: SafeGuideMode) => void;
+
   envelope: { peak: number; rms: number };
   degradeStep: number;
 }
@@ -33,14 +38,12 @@ const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
 
 const formatDuration = (milliseconds: number) => {
   const totalSeconds = Math.floor(milliseconds / 1000);
-  const minutes = Math.floor(totalSeconds / 60)
-    .toString()
-    .padStart(2, '0');
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
   const seconds = (totalSeconds % 60).toString().padStart(2, '0');
   return `${minutes}:${seconds}`;
 };
 
-export const Hud: React.FC<HudProps> = ({
+const Hud: React.FC<HudProps> = ({
   params,
   onParamChange,
   onPreset,
@@ -126,7 +129,7 @@ export const Hud: React.FC<HudProps> = ({
 
         {/* Tone & Contrast */}
         <div className="control-group">
-          <h2>Tone & Contrast</h2>
+          <h2>Tone &amp; Contrast</h2>
 
           <div className="control-stack">
             <div className="control-label-row">
@@ -144,9 +147,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="contrast-k"
               type="range"
-              min="1"
-              max="12"
-              step="0.1"
+              min={1}
+              max={12}
+              step={0.1}
               value={params.contrastK}
               onChange={handleRange('contrastK')}
             />
@@ -168,9 +171,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="shadow-lift"
               type="range"
-              min="0"
-              max="0.2"
-              step="0.005"
+              min={0}
+              max={0.2}
+              step={0.005}
               value={params.blackClamp}
               onChange={handleRange('blackClamp')}
             />
@@ -192,9 +195,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="midtone-gamma"
               type="range"
-              min="0.5"
-              max="2"
-              step="0.01"
+              min={0.5}
+              max={2}
+              step={0.01}
               value={params.gammaOut}
               onChange={handleRange('gammaOut')}
             />
@@ -221,9 +224,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="grain-amount"
               type="range"
-              min="0"
-              max="0.6"
-              step="0.01"
+              min={0}
+              max={0.6}
+              step={0.01}
               value={params.grainIntensity}
               onChange={handleRange('grainIntensity')}
             />
@@ -245,9 +248,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="grain-size"
               type="range"
-              min="0.5"
-              max="4"
-              step="0.1"
+              min={0.5}
+              max={4}
+              step={0.1}
               value={params.grainSize}
               onChange={handleRange('grainSize')}
             />
@@ -269,9 +272,9 @@ export const Hud: React.FC<HudProps> = ({
             <input
               id="edge-vignette"
               type="range"
-              min="0"
-              max="1.5"
-              step="0.01"
+              min={0}
+              max={1.5}
+              step={0.01}
               value={params.vignette}
               onChange={handleRange('vignette')}
             />
@@ -280,39 +283,60 @@ export const Hud: React.FC<HudProps> = ({
 
         {/* Color Bloom & Distortion */}
         <div className="control-group">
-          <h2>Color Bloom & Distortion</h2>
-
-          <ToggleSwitch
-            id="color-bloom-gate"
-            label="Color Bloom Gate"
-            checked={params.crimsonGate}
-            onChange={(checked) => onParamChange({ crimsonGate: checked })}
-            description="Enables responsive bloom pulses that react to peaks in the signal."
-          />
+          <h2>Color Bloom &amp; Distortion</h2>
 
           <div className="control-stack">
-            <label>
-              Bloom Intensity ({params.crimsonAmount.toFixed(2)})
-            </label>
+            <div className="control-label-row">
+              <label htmlFor="color-bloom-gate">Color Bloom Gate (G)</label>
+              <InfoTooltip
+                content="Enables responsive bloom pulses that react to peaks in the signal. Hotkey: G."
+                ariaLabel="Learn about color bloom gate"
+              />
+            </div>
+            <p className="control-helper">
+              Toggle to allow bloom flashes during high-energy moments.
+            </p>
             <input
+              id="color-bloom-gate"
+              type="checkbox"
+              checked={params.crimsonGate}
+              onChange={(e) => onParamChange({ crimsonGate: e.target.checked })}
+            />
+          </div>
+
+          <div className="control-stack">
+            <div className="control-label-row">
+              <label htmlFor="color-bloom-amount">
+                Bloom Intensity ({params.crimsonAmount.toFixed(2)})
+              </label>
+            </div>
+            <p className="control-helper">Higher values push glow into highlights.</p>
+            <input
+              id="color-bloom-amount"
               type="range"
-              min="0"
-              max="1.2"
-              step="0.01"
+              min={0}
+              max={1.2}
+              step={0.01}
               value={params.crimsonAmount}
               onChange={handleRange('crimsonAmount')}
             />
           </div>
 
           <div className="control-stack">
-            <label>
-              Edge Color Split ({params.chromaAberration.toFixed(3)})
-            </label>
+            <div className="control-label-row">
+              <label htmlFor="edge-split">
+                Edge Color Split ({params.chromaAberration.toFixed(3)})
+              </label>
+            </div>
+            <p className="control-helper">
+              Offset color channels at the frame edge for a stylised glitch.
+            </p>
             <input
+              id="edge-split"
               type="range"
-              min="0"
-              max="0.02"
-              step="0.001"
+              min={0}
+              max={0.02}
+              step={0.001}
               value={params.chromaAberration}
               onChange={handleRange('chromaAberration')}
             />
@@ -339,6 +363,7 @@ export const Hud: React.FC<HudProps> = ({
         {/* Record */}
         <div className="control-group">
           <h2>Record</h2>
+
           <div className="record-panel">
             <div className="record-primary">
               <button
@@ -346,10 +371,15 @@ export const Hud: React.FC<HudProps> = ({
                 onClick={onRecordPrimaryAction}
                 title="Start/Stop recording of the processed feed"
               >
-                {recordState === 'idle' ? 'Start Recording' : 'Stop Recording'}
+                {recordState === 'idle' ? 'Start Recording (R)' : 'Stop Recording (R)'}
               </button>
 
-              <div className="record-status" role="status" aria-live="polite">
+              <div
+                className="record-status"
+                role="status"
+                aria-live="polite"
+                aria-atomic={true}
+              >
                 <span
                   className={`record-indicator ${
                     recordState !== 'idle' ? 'active' : ''
@@ -374,42 +404,68 @@ export const Hud: React.FC<HudProps> = ({
                 onClick={onRecordPauseToggle}
                 disabled={recordState === 'idle'}
                 aria-pressed={recordState === 'paused'}
+                title={recordState === 'paused' ? 'Resume recording' : 'Pause recording'}
               >
                 {recordState === 'paused' ? 'Resume' : 'Pause'}
               </button>
             </div>
 
             <div className="record-secondary">
-              <ToggleSwitch
-                id="safe-mode"
-                label="Safe Mode"
-                checked={safeMode}
-                onChange={onSafeModeChange}
-                description="Reduces intense visual effects for viewer comfort."
-              />
+              <button
+                onClick={() => onSafeModeChange(!safeMode)}
+                aria-pressed={safeMode}
+                aria-label={
+                  safeMode
+                    ? 'Disable Safe Mode to restore full effect intensity'
+                    : 'Enable Safe Mode to reduce intense visual effects'
+                }
+                title={
+                  safeMode
+                    ? 'Disable Safe Mode to restore full effect intensity'
+                    : 'Enable Safe Mode to reduce intense visual effects'
+                }
+              >
+                {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
+              </button>
 
-              <ToggleSwitch
-                id="record-safe"
-                label="Record Safe Override"
-                checked={params.recordSafe}
-                onChange={(checked) => onParamChange({ recordSafe: checked })}
-                description="Allow intense effects while recording."
-              />
+              <div className="control-stack">
+                <div className="control-label-row">
+                  <label htmlFor="record-safe">Record Safe Override</label>
+                  <InfoTooltip
+                    content="Forces a conservative output profile when capturing, even if live mode is more intense."
+                    ariaLabel="Learn about record safe override"
+                  />
+                </div>
+                <input
+                  id="record-safe"
+                  type="checkbox"
+                  checked={params.recordSafe}
+                  onChange={(e) => onParamChange({ recordSafe: e.target.checked })}
+                />
+              </div>
 
-              <ToggleSwitch
-                id="freeze-frame"
-                label="Freeze Frame (F)"
-                checked={params.freezeFrame}
-                onChange={(checked) => onParamChange({ freezeFrame: checked })}
-                description="Hold the current frame during capture."
-              />
+              <div className="control-stack">
+                <div className="control-label-row">
+                  <label htmlFor="freeze-frame">Freeze Frame (F)</label>
+                  <InfoTooltip
+                    content="Locks the current frame for still captures while keeping audio flowing."
+                    ariaLabel="Learn about freeze frame"
+                  />
+                </div>
+                <input
+                  id="freeze-frame"
+                  type="checkbox"
+                  checked={params.freezeFrame}
+                  onChange={(e) => onParamChange({ freezeFrame: e.target.checked })}
+                />
+              </div>
             </div>
           </div>
 
           <p>
             Allow camera + microphone in browser or iframe using{' '}
-            <code>allow="camera; microphone; autoplay"</code>. When the recorder
-            is active, temporal jitter and glitches are softened automatically.
+            <code>allow="camera; microphone; autoplay"</code>. When the recorder is
+            active, temporal jitter and glitches are softened automatically.
           </p>
         </div>
       </div>

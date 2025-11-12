@@ -2,6 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { RenderParams } from '../engine/renderGraph';
 import PresetPanel from './PresetPanel';
 import { SafeGuideMode } from './SafeGuides';
+import ToggleSwitch from './ToggleSwitch';
 
 interface HudProps {
   params: RenderParams;
@@ -106,11 +107,12 @@ export const Hud: React.FC<HudProps> = ({
         </div>
         <div className="control-group">
           <h2>Crimson</h2>
-          <label>Gate Enabled</label>
-          <input
-            type="checkbox"
+          <ToggleSwitch
+            id="crimson-gate"
+            label="Crimson Gate"
             checked={params.crimsonGate}
-            onChange={(event) => onParamChange({ crimsonGate: event.target.checked })}
+            onChange={(checked) => onParamChange({ crimsonGate: checked })}
+            description="Activate the crimson gating effect"
           />
           <label>Intensity ({params.crimsonAmount.toFixed(2)})</label>
           <input
@@ -146,33 +148,31 @@ export const Hud: React.FC<HudProps> = ({
           <h2>Record</h2>
           <div className="transport-bar">
             <button onClick={onToggleRecord}>{isRecording ? 'Stop' : 'Record'}</button>
-            <button
-              onClick={() => onSafeModeChange(!safeMode)}
-              aria-pressed={safeMode}
-              aria-label={
+            <ToggleSwitch
+              id="safe-mode"
+              label="Safe Mode"
+              checked={safeMode}
+              onChange={onSafeModeChange}
+              description={
                 safeMode
-                  ? 'Disable Safe Mode to restore full effect intensity'
-                  : 'Enable Safe Mode to reduce intense visual effects'
+                  ? 'Disable to restore full effect intensity'
+                  : 'Enable to reduce intense visual effects'
               }
-            >
-              {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
-            </button>
-            <label>
-              <input
-                type="checkbox"
-                checked={params.recordSafe}
-                onChange={(event) => onParamChange({ recordSafe: event.target.checked })}
-              />
-              Record Safe Override
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={params.freezeFrame}
-                onChange={(event) => onParamChange({ freezeFrame: event.target.checked })}
-              />
-              Freeze Frame (F)
-            </label>
+            />
+            <ToggleSwitch
+              id="record-safe"
+              label="Record Safe Override"
+              checked={params.recordSafe}
+              onChange={(checked) => onParamChange({ recordSafe: checked })}
+              description="Allow intense effects while recording"
+            />
+            <ToggleSwitch
+              id="freeze-frame"
+              label="Freeze Frame (F)"
+              checked={params.freezeFrame}
+              onChange={(checked) => onParamChange({ freezeFrame: checked })}
+              description="Hold the current frame during capture"
+            />
           </div>
           <p>
             Allow camera + microphone in browser or iframe using <code>allow="camera; microphone; autoplay"</code>. When the recorder is active, temporal

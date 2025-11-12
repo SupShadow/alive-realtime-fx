@@ -1,3 +1,5 @@
+/* src/ui/styles.css — konfliktfrei gemergt (Stand 2025-11-12, Europe/Berlin) */
+
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #f2f2f2;
@@ -15,6 +17,8 @@ body, html, #root {
 body {
   overflow: hidden;
 }
+
+/* ───────────────────────────────── Layout ───────────────────────────────── */
 
 .app-shell {
   position: relative;
@@ -40,6 +44,8 @@ canvas {
   max-height: 100%;
 }
 
+/* ─────────────────────────────── HUD & Banner ───────────────────────────── */
+
 .hud {
   position: absolute;
   top: 12px;
@@ -50,6 +56,82 @@ canvas {
   gap: 12px;
   pointer-events: none;
 }
+
+.permission-banner {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(8, 8, 8, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  border-radius: 12px;
+  padding: 16px;
+  color: #f6f6f6;
+  max-width: min(420px, calc(100% - 48px));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  z-index: 12;
+}
+
+.permission-banner__message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.permission-banner__message strong {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.permission-banner__message code {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.permission-banner__dismiss {
+  align-self: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+  color: #f6f6f6;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.permission-banner__dismiss:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.permission-banner__dismiss:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .permission-banner {
+    left: 12px;
+    right: 12px;
+    transform: none;
+  }
+}
+
+/* ─────────────────────────────── HUD Panel ──────────────────────────────── */
 
 .hud-panel {
   display: flex;
@@ -74,6 +156,8 @@ canvas {
   color: #f6f6f6;
 }
 
+/* ─────────────────────────────── Controls ──────────────────────────────── */
+
 .control-group {
   display: flex;
   flex-direction: column;
@@ -91,55 +175,174 @@ canvas {
   width: 100%;
 }
 
-.transport-bar {
+.control-stack {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.control-label-row {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  justify-content: space-between;
 }
 
-.transport-bar button,
-.hud-panel button,
-.file-input label {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
-  color: #f6f6f6;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 8px 12px;
+.control-helper {
+  margin: 0;
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  color: rgba(246, 246, 246, 0.75);
 }
 
-.transport-bar button:hover,
-.hud-panel button:hover,
-.file-input label:hover {
-  background: rgba(255, 255, 255, 0.18);
+/* ───────────────────────────── File / Source ───────────────────────────── */
+
+.video-source-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
-/* Toggle-Buttons: aktiver/gedrückter Zustand (A11y via aria-pressed) */
-button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.28);
-  border-color: rgba(255, 255, 255, 0.6);
+.file-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-input input[type="file"] {
+  display: none;
+}
+
+/* Style the label like a button */
+.file-input label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
   color: #f6f6f6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-/* Disabled-Zustand in Panels */
+.file-input label:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────── Buttons ──────────────────────────────── */
+
+.hud-panel button,
+.record-secondary button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  color: #f6f6f6;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.hud-panel button:hover,
+.record-secondary button:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
 .hud-panel button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.08);
 }
 
-/* Sicherheit: falls disabled + pressed gleichzeitig gesetzt ist, soll disabled gewinnen */
-.hud-panel button:disabled[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f6f6f6;
+/* ─────────────────────────────── Presets/Guides ────────────────────────── */
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
+/* ─────────────────────────────── Record Panel ─────────────────────────── */
+
+.record-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Primary row with big record button */
+.record-primary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: -8px;
+  padding: 12px 16px;
+  background: rgba(12, 12, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+/* Secondary controls below */
+.record-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.record-button {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.record-button.record-idle {
+  background: radial-gradient(circle at 30% 30%, #ff7676, #b00000);
+  box-shadow: 0 0 24px rgba(255, 76, 76, 0.35);
+}
+
+.record-button.record-recording {
+  background: radial-gradient(circle at 30% 30%, #ff4949, #7e0000);
+  box-shadow: 0 0 32px rgba(255, 66, 66, 0.55);
+}
+
+.record-button.record-paused {
+  background: radial-gradient(circle at 30% 30%, #ffbf49, #b36f00);
+  box-shadow: 0 0 28px rgba(255, 191, 73, 0.45);
+}
+
+.record-button:active {
+  transform: scale(0.97);
+}
+
+/* ──────────────── MERGE: Beides behalten (.status-row / .level-meter + .record-status) ──────────────── */
+
+/* From branch: codex/create-and-integrate-level-meter-component */
 .status-row {
   display: flex;
   flex-wrap: wrap;
@@ -209,6 +412,112 @@ button[aria-pressed="true"] {
   font-variant-numeric: tabular-nums;
 }
 
+/* From branch: main */
+.record-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Shared (unterhalb des Konfliktblocks bereits vorhanden) */
+.record-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.record-indicator.active {
+  background: #ff4f4f;
+  box-shadow: 0 0 12px rgba(255, 79, 79, 0.75);
+}
+
+.record-indicator.paused {
+  background: #ffbf49;
+  box-shadow: 0 0 10px rgba(255, 191, 73, 0.6);
+}
+
+.record-status-text {
+  white-space: nowrap;
+}
+
+.record-timer {
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.record-pause {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  color: #080808;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.record-pause[aria-pressed='true'] {
+  background: linear-gradient(135deg, rgba(255, 191, 73, 0.85), rgba(255, 191, 73, 0.65));
+  color: #3b2500;
+}
+
+.record-pause:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────── Info Tooltip ───────────────────────────── */
+
+.info-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  color: #0a0a0a;
+  background: #f6f6f6;
+  cursor: help;
+}
+
+.info-tooltip__bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 280px;
+  padding: 8px 10px;
+  background: rgba(8, 8, 8, 0.95);
+  color: #f6f6f6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  display: none;
+  z-index: 10;
+}
+
+.info-tooltip:hover .info-tooltip__bubble,
+.info-tooltip:focus-within .info-tooltip__bubble {
+  display: block;
+}
+
+/* ─────────────────────────────── Responsive ────────────────────────────── */
+
 @media (max-height: 720px) {
   .hud {
     top: 8px;
@@ -216,9 +525,11 @@ button[aria-pressed="true"] {
     right: 8px;
     gap: 8px;
   }
+}
 
-  .hud-panel {
-    gap: 8px;
-    padding: 12px;
+@media (max-width: 880px) {
+  .record-primary {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

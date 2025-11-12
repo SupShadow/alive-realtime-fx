@@ -13,6 +13,12 @@ A local-first React + TypeScript + Vite application that renders live camera or 
 
 The project avoids external CDNs and runs entirely offline.
 
+## Camera & microphone permissions
+
+- The app checks runtime permission status for the camera and microphone using the [`Permissions` API](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API) when it is available.
+- If either permission is blocked, a HUD-styled banner appears inside the canvas wrapper to explain why capture cannot start and how to resolve it (browser site permissions or iframe `allow="camera; microphone; autoplay"` attributes).
+- The banner is dismissible for the current session. It will re-open automatically if permissions are revoked again, helping operators understand why capture controls are disabled.
+
 ## Voraussetzungen & Installation
 
 - Installiere [Node.js](https://nodejs.org/) in Version **18** oder höher (Vite 5 erfordert mindestens Node 18).

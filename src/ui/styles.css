@@ -91,12 +91,17 @@ canvas {
   width: 100%;
 }
 
+/* --- Record Panel (merged) --- */
 .record-panel {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* main */
   gap: 12px;
+  /* aus codex: sinnvolle Defaults beibehalten */
+  align-items: center;
+  justify-content: flex-start;
 }
 
+/* Primary row with big record button */
 .record-primary {
   display: flex;
   align-items: center;
@@ -111,6 +116,7 @@ canvas {
   z-index: 1;
 }
 
+/* Secondary controls below */
 .record-secondary {
   display: flex;
   flex-direction: column;
@@ -215,154 +221,3 @@ canvas {
 .record-secondary button,
 .hud-panel button,
 .file-input label {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
-  color: #f6f6f6;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.record-secondary button:hover,
-.hud-panel button:hover,
-.file-input label:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* Toggle-Buttons: aktiver/gedrückter Zustand (A11y via aria-pressed) */
-button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.28);
-  border-color: rgba(255, 255, 255, 0.6);
-  color: #f6f6f6;
-}
-
-/* Disabled-Zustand in Panels */
-.hud-panel button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Sicherheit: falls disabled + pressed gleichzeitig gesetzt ist, soll disabled gewinnen */
-.hud-panel button:disabled[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #f6f6f6;
-}
-
-.preset-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-}
-
-.preset-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 4px;
-  padding: 12px;
-}
-
-.preset-card__title {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.preset-card__description {
-  font-size: 11px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-@media (max-height: 720px) {
-  .hud {
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    gap: 8px;
-  }
-
-  .hud-panel {
-    gap: 8px;
-    padding: 12px;
-  }
-}
-
-.info-tooltip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  margin-left: 6px;
-}
-
-.info-tooltip__trigger {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f6f6f6;
-  font-size: 11px;
-  line-height: 1;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  padding: 0;
-}
-
-.info-tooltip__trigger:focus-visible {
-  outline: 2px solid #8cc5ff;
-  outline-offset: 2px;
-}
-
-.info-tooltip__bubble {
-  position: absolute;
-  top: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 180px;
-  max-width: 220px;
-  background: rgba(8, 8, 8, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 12px;
-  line-height: 1.4;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-  z-index: 20;
-}
-
-.info-tooltip__bubble.is-visible {
-  opacity: 1;
-}
-
-.control-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.control-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-}
-
-.control-helper {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 4px 0;
-}

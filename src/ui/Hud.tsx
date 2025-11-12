@@ -281,15 +281,13 @@ const Hud: React.FC<HudProps> = ({
           </div>
         </div>
 
-        {/* Color Bloom & Distortion (merged: tooltips + hotkey info) */}
+        {/* Color Bloom & Distortion */}
         <div className="control-group">
           <h2>Color Bloom &amp; Distortion</h2>
 
           <div className="control-stack">
             <div className="control-label-row">
-              <label htmlFor="color-bloom-gate">
-                Color Bloom Gate (G)
-              </label>
+              <label htmlFor="color-bloom-gate">Color Bloom Gate (G)</label>
               <InfoTooltip
                 content="Enables responsive bloom pulses that react to peaks in the signal. Hotkey: G."
                 ariaLabel="Learn about color bloom gate"
@@ -311,14 +309,8 @@ const Hud: React.FC<HudProps> = ({
               <label htmlFor="color-bloom-amount">
                 Bloom Intensity ({params.crimsonAmount.toFixed(2)})
               </label>
-              <InfoTooltip
-                content="Sets how strong the reactive color bloom appears when the gate is active."
-                ariaLabel="Learn about bloom intensity"
-              />
             </div>
-            <p className="control-helper">
-              Higher values push vibrant glow into highlights.
-            </p>
+            <p className="control-helper">Higher values push glow into highlights.</p>
             <input
               id="color-bloom-amount"
               type="range"
@@ -335,13 +327,9 @@ const Hud: React.FC<HudProps> = ({
               <label htmlFor="edge-split">
                 Edge Color Split ({params.chromaAberration.toFixed(3)})
               </label>
-              <InfoTooltip
-                content="Offsets color channels at the frame edge for a stylised chromatic glitch."
-                ariaLabel="Learn about edge color split"
-              />
             </div>
             <p className="control-helper">
-              Use lightly to keep subjects legible while adding motion energy.
+              Offset color channels at the frame edge for a stylised glitch.
             </p>
             <input
               id="edge-split"

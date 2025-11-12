@@ -3,6 +3,8 @@ import { RenderParams } from '../engine/renderGraph';
 import PresetPanel from './PresetPanel';
 import { SafeGuideMode } from './SafeGuides';
 
+type RecordState = 'idle' | 'recording' | 'paused';
+
 interface HudProps {
   params: RenderParams;
   onParamChange: (changes: Partial<RenderParams>) => void;
@@ -11,8 +13,10 @@ interface HudProps {
   onStopCamera: () => void;
   onVideoFile: (file: File) => void;
   onAudioFile: (file: File) => void;
-  onToggleRecord: () => void;
-  isRecording: boolean;
+  onRecordPrimaryAction: () => void;
+  onRecordPauseToggle: () => void;
+  recordState: RecordState;
+  elapsedTimeMs: number;
   cameraActive: boolean;
   safeMode: boolean;
   onSafeModeChange: (value: boolean) => void;
@@ -24,6 +28,15 @@ interface HudProps {
 
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
 
+const formatDuration = (milliseconds: number) => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+};
+
 export const Hud: React.FC<HudProps> = ({
   params,
   onParamChange,
@@ -32,8 +45,10 @@ export const Hud: React.FC<HudProps> = ({
   onStopCamera,
   onVideoFile,
   onAudioFile,
-  onToggleRecord,
-  isRecording,
+  onRecordPrimaryAction,
+  onRecordPauseToggle,
+  recordState,
+  elapsedTimeMs,
   cameraActive,
   safeMode,
   onSafeModeChange,
@@ -144,35 +159,68 @@ export const Hud: React.FC<HudProps> = ({
         </div>
         <div className="control-group">
           <h2>Record</h2>
-          <div className="transport-bar">
-            <button onClick={onToggleRecord}>{isRecording ? 'Stop' : 'Record'}</button>
-            <button
-              onClick={() => onSafeModeChange(!safeMode)}
-              aria-pressed={safeMode}
-              aria-label={
-                safeMode
-                  ? 'Disable Safe Mode to restore full effect intensity'
-                  : 'Enable Safe Mode to reduce intense visual effects'
-              }
-            >
-              {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
-            </button>
-            <label>
-              <input
-                type="checkbox"
-                checked={params.recordSafe}
-                onChange={(event) => onParamChange({ recordSafe: event.target.checked })}
-              />
-              Record Safe Override
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={params.freezeFrame}
-                onChange={(event) => onParamChange({ freezeFrame: event.target.checked })}
-              />
-              Freeze Frame (F)
-            </label>
+          <div className="record-panel">
+            <div className="record-primary">
+              <button
+                className={`record-button record-${recordState}`}
+                onClick={onRecordPrimaryAction}
+              >
+                {recordState === 'idle' ? 'Start Recording' : 'Stop Recording'}
+              </button>
+              <div className="record-status" role="status" aria-live="polite" aria-atomic="true">
+                <span
+                  className={`record-indicator ${recordState !== 'idle' ? 'active' : ''} ${recordState === 'paused' ? 'paused' : ''}`}
+                  aria-hidden="true"
+                />
+                <span className="record-status-text">
+                  {recordState === 'recording'
+                    ? 'Recording'
+                    : recordState === 'paused'
+                    ? 'Paused'
+                    : 'Idle'}
+                </span>
+              </div>
+              <span className="record-timer" aria-hidden={recordState === 'idle'}>
+                {formatDuration(elapsedTimeMs)}
+              </span>
+              <button
+                className="record-pause"
+                onClick={onRecordPauseToggle}
+                disabled={recordState === 'idle'}
+                aria-pressed={recordState === 'paused'}
+              >
+                {recordState === 'paused' ? 'Resume' : 'Pause'}
+              </button>
+            </div>
+            <div className="record-secondary">
+              <button
+                onClick={() => onSafeModeChange(!safeMode)}
+                aria-pressed={safeMode}
+                aria-label={
+                  safeMode
+                    ? 'Disable Safe Mode to restore full effect intensity'
+                    : 'Enable Safe Mode to reduce intense visual effects'
+                }
+              >
+                {safeMode ? 'Disable Safe Mode' : 'Enable Safe Mode'}
+              </button>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={params.recordSafe}
+                  onChange={(event) => onParamChange({ recordSafe: event.target.checked })}
+                />
+                Record Safe Override
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={params.freezeFrame}
+                  onChange={(event) => onParamChange({ freezeFrame: event.target.checked })}
+                />
+                Freeze Frame (F)
+              </label>
+            </div>
           </div>
           <p>
             Allow camera + microphone in browser or iframe using <code>allow="camera; microphone; autoplay"</code>. When the recorder is active, temporal
